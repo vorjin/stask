@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	postgres "cli-task-manager/db"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -17,7 +19,25 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("add called")
+		db, err := postgres.ConnectToDatabase()
+		if err != nil {
+			panic(err)
+		}
+		defer db.Close()
+
+		sqlQuery := `
+		INSERT INTO tasks (title)
+		VALUES ($1)
+		`
+		//interpriting arguments into 1 string
+		task := strings.Join(args, " ")
+
+		_, err = db.Exec(sqlQuery, task)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("Task was added succesfully.")
 	},
 }
 
