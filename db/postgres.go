@@ -4,27 +4,18 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
+	"os"
+
 	_ "github.com/lib/pq"
 )
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "dmytro.varhan"
-	password = "postgres"
-	dbname   = "task_manager"
-)
-
-func ConnectToDatabase() {
-	psqlinfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+func ConnectToDatabase() (*sql.DB, error) {
+	psqlinfo := os.Getenv("DB_CONN_STR")
 
 	db, err := sql.Open("postgres", psqlinfo)
 	if err != nil {
 		panic(err)
 	}
-
-	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
@@ -32,4 +23,5 @@ func ConnectToDatabase() {
 	}
 
 	fmt.Println("Succesfully connected to postgres database")
+	return db, nil
 }

@@ -1,8 +1,9 @@
 package cmd
 
 import (
-	"cli-task-manager/db"
+	postgres "cli-task-manager/db"
 	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -10,15 +11,32 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list",
 	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long:  `A o quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
-		postgres.ConnectToDatabase()
+		db, err := postgres.ConnectToDatabase()
+		if err != nil {
+			panic(err)
+		}
+		defer db.Close()
+
+		rows, err := db.Query(`SELECT * FROM tasks`)
+		if err != nil {
+			panic(err)
+		}
+
+		for rows.Next() {
+			var id int
+			var name string
+			var done bool
+			var createdAt string
+
+			err := rows.Scan(&id, &name, &done, &createdAt)
+			if err != nil {
+				panic(err)
+			}
+
+			fmt.Printf("%d. %s \n", id, name)
+		}
 	},
 }
 
