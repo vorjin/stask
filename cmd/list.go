@@ -23,7 +23,11 @@ var listCmd = &cobra.Command{
 		defer db.Close()
 
 		err = db.View(func(tx *bolt.Tx) error {
-			bucket := tx.Bucket([]byte("tasks"))
+			bucket, err := tx.CreateBucketIfNotExists([]byte("tasks"))
+			if err != nil {
+				panic(err)
+			}
+
 			cursor := bucket.Cursor()
 
 			for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
