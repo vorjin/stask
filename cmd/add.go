@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"encoding/binary"
 	"fmt"
-	"github.com/boltdb/bolt"
 	"github.com/spf13/cobra"
+	"stask/db"
 	"strings"
 )
 
@@ -14,35 +13,9 @@ var addCmd = &cobra.Command{
 	Short: "Add a new task to your list",
 	Long:  `Add a new task to your list. The task description can be a single word or a sentence.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		db, err := bolt.Open("task-manager.db", 0644, nil)
-		if err != nil {
-			panic(err)
-		}
-		defer db.Close()
+		todoTask := []byte(strings.Join(args, " "))
 
-		err = db.Update(func(tx *bolt.Tx) error {
-			bucket, err := tx.CreateBucketIfNotExists([]byte("tasks"))
-			if err != nil {
-				panic(err)
-			}
-
-			id, err := bucket.NextSequence()
-			if err != nil {
-				panic(err)
-			}
-
-			idBytes := make([]byte, 8)
-			binary.BigEndian.PutUint64(idBytes, id)
-
-			todoTask := []byte(strings.Join(args, " "))
-
-			err = bucket.Put(idBytes, todoTask)
-			if err != nil {
-				panic(err)
-			}
-
-			return nil
-		})
+		err := db.AddTask(todoTask)
 
 		if err != nil {
 			panic(err)

@@ -34,7 +34,7 @@ func ListTasks() error {
 		cursor := bucket.Cursor()
 
 		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-			id := uToI(key)
+			id := bToU(key)
 			fmt.Printf("%d. %s\n", id, value)
 		}
 
@@ -42,6 +42,32 @@ func ListTasks() error {
 	})
 }
 
-func uToI(key []byte) uint64 {
+func AddTask(task []byte) error {
+	return db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(bucketPath)
+
+		id, err := bucket.NextSequence()
+		if err != nil {
+			panic(err)
+		}
+
+		idBytes := uToB(id)
+
+		err = bucket.Put(idBytes, task)
+		if err != nil {
+			panic(err)
+		}
+
+		return nil
+	})
+}
+
+func bToU(key []byte) uint64 {
 	return binary.BigEndian.Uint64(key)
+}
+
+func uToB(id uint64) []byte {
+	idBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(idBytes, id)
+	return idBytes
 }
