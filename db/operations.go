@@ -62,6 +62,21 @@ func AddTask(task []byte) error {
 	})
 }
 
+func DoTask(id uint64) error {
+	return db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(bucketPath)
+
+		idBytes := uToB(id)
+
+		err := bucket.Delete(idBytes)
+		if err != nil {
+			panic(err)
+		}
+
+		return nil
+	})
+}
+
 func bToU(key []byte) uint64 {
 	return binary.BigEndian.Uint64(key)
 }
@@ -71,3 +86,4 @@ func uToB(id uint64) []byte {
 	binary.BigEndian.PutUint64(idBytes, id)
 	return idBytes
 }
+

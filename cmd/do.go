@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"encoding/binary"
 	"fmt"
-	"strconv"
-
-	"github.com/boltdb/bolt"
 	"github.com/spf13/cobra"
+	"stask/db"
+	"strconv"
 )
 
 // doCmd represents the do command
@@ -15,34 +13,12 @@ var doCmd = &cobra.Command{
 	Short: "Mark a task as complete",
 	Long:  `Mark a task as complete by providing its number from the list.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		db, err := bolt.Open("task-manager.db", 0644, nil)
+		id, err := strconv.ParseUint(args[0], 10, 64)
 		if err != nil {
 			panic(err)
 		}
-		defer db.Close()
 
-		err = db.Update(func(tx *bolt.Tx) error {
-			bucket := tx.Bucket([]byte("tasks"))
-			if bucket == nil {
-				fmt.Println("bucket not found")
-				return nil
-			}
-
-			id, err := strconv.ParseUint(args[0], 10, 64)
-			if err != nil {
-				panic(err)
-			}
-
-			idBytes := make([]byte, 8)
-			binary.BigEndian.PutUint64(idBytes, id)
-
-			err = bucket.Delete(idBytes)
-			if err != nil {
-				panic(err)
-			}
-
-			return nil
-		})
+		err = db.DoTask(id)
 
 		if err != nil {
 			panic(err)
