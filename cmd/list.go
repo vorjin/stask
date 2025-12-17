@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"encoding/binary"
-	"fmt"
-
-	"github.com/boltdb/bolt"
 	"github.com/spf13/cobra"
+	"stask/db"
 )
 
 // listCmd represents the list command
@@ -14,30 +11,7 @@ var listCmd = &cobra.Command{
 	Short: "List all of your incomplete tasks",
 	Long:  `List all of your incomplete tasks currently stored in the database.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("This is your tasks:\n")
-
-		db, err := bolt.Open("task-manager.db", 0644, nil)
-		if err != nil {
-			panic(err)
-		}
-		defer db.Close()
-
-		err = db.View(func(tx *bolt.Tx) error {
-			bucket, err := tx.CreateBucketIfNotExists([]byte("tasks"))
-			if err != nil {
-				panic(err)
-			}
-
-			cursor := bucket.Cursor()
-
-			for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
-				id := binary.BigEndian.Uint64(key)
-				fmt.Printf("%d. %s\n", id, value)
-			}
-
-			return nil
-		})
-
+		err := db.ListTasks()
 		if err != nil {
 			panic(err)
 		}
