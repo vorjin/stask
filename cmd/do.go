@@ -1,10 +1,12 @@
 package cmd
 
 import (
-	"github.com/fatih/color"
-	"github.com/spf13/cobra"
+	"fmt"
 	"stask/db"
 	"strconv"
+
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
 // doCmd represents the do command
@@ -13,18 +15,22 @@ var doCmd = &cobra.Command{
 	Short: "Mark a task as complete",
 	Long:  `Mark a task as complete by providing its number from the list.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		id, err := strconv.ParseUint(args[0], 10, 64)
-		if err != nil {
-			panic(err)
+
+		for _, taskID := range args {
+			id, err := strconv.ParseUint(taskID, 10, 64)
+			if err != nil {
+				panic(err)
+			}
+
+			err = db.DoTask(id)
+
+			if err != nil {
+				panic(err)
+			}
+
+			color.Set(color.FgGreen)
+			fmt.Printf("Task #%s was marked as done!\n", taskID)
 		}
-
-		err = db.DoTask(id)
-
-		if err != nil {
-			panic(err)
-		}
-
-		color.Green("Task was marked as done!")
 	},
 }
 
