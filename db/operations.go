@@ -69,6 +69,7 @@ func ListCompletedTasks(hours int) error {
 
 		timeCursor := timeBucket.Cursor()
 
+		i := 1
 		for key, timeValue := timeCursor.Last(); key != nil; key, timeValue = timeCursor.Prev() {
 			if bytes.Compare(timeValue, cutoffBytes) < 0 {
 				break
@@ -76,8 +77,9 @@ func ListCompletedTasks(hours int) error {
 
 			taskBytes := dataBucket.Get(key)
 			if taskBytes != nil {
-				id := bToU(key)
-				fmt.Printf("%d. %s\n", id, taskBytes)
+				// id := bToU(key)
+				fmt.Printf("%d. %s\n", i, taskBytes)
+				i++
 			}
 		}
 
@@ -138,6 +140,12 @@ func DeleteTask(id uint64) error {
 		}
 
 		return nil
+	})
+}
+
+func DeleteTasksBucket() error {
+	return db.Update(func(tx *bolt.Tx) error {
+		return tx.DeleteBucket(tasksBucket)
 	})
 }
 
