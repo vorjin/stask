@@ -88,6 +88,10 @@ func ListCompletedTasks(hours int) error {
 	})
 }
 
+func AddToDOTask(task []byte) error {
+	return AddTask(task, "tasks")
+}
+
 func AddTask(task []byte, bucketName string) error {
 	bucketBytes := []byte(bucketName)
 

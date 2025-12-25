@@ -15,7 +15,7 @@ var addCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		todoTask := []byte(strings.Join(args, " "))
 
-		err := db.AddTask(todoTask, "tasks")
+		err := db.AddToDOTask(todoTask)
 
 		if err != nil {
 			panic(err)
