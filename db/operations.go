@@ -4,15 +4,18 @@ package db
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/boltdb/bolt"
 	"strconv"
 	"time"
+
+	"github.com/boltdb/bolt"
 )
 
-var db *bolt.DB
-var tasksBucket = []byte("tasks")
-var completedBucket = []byte("completed")
-var completedTimeBucket = []byte("completed_time")
+var (
+	db                  *bolt.DB
+	tasksBucket         = []byte("tasks")
+	completedBucket     = []byte("completed")
+	completedTimeBucket = []byte("completed_time")
+)
 
 type Task struct {
 	ID   uint64
@@ -22,7 +25,7 @@ type Task struct {
 func BoltDBInit(path string) error {
 	var err error
 
-	db, err = bolt.Open(path, 0600, &bolt.Options{Timeout: 1 * time.Second})
+	db, err = bolt.Open(path, 0o600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return err
 	}
@@ -143,7 +146,6 @@ func TaskByID(id uint64) ([]byte, error) {
 		taskDesc = bucket.Get(idBytes)
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +201,6 @@ func DoTask(args []string) ([]string, error) {
 		}
 
 		err = DeleteTask(id)
-
 		if err != nil {
 			return nil, err
 		}

@@ -1,24 +1,21 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package main
 
 import (
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"os"
+	"path/filepath"
+
 	"stask/cmd"
 	"stask/db"
 )
 
 func main() {
-	var path = `/task-manager.db`
-	osDir, err := homedir.Dir()
+	path, err := os.UserHomeDir()
 	if err != nil {
 		fmt.Printf("Error getting user home directory. Err: %v", err)
 		os.Exit(1)
 	}
-	dbPath := osDir + path
+	dbPath := filepath.Join(path, "task-manager.db")
 
 	err = db.BoltDBInit(dbPath)
 	if err != nil {

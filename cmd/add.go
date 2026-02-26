@@ -2,11 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
+	"stask/db"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"os"
-	"stask/db"
-	"strings"
 )
 
 // addCmd represents the add command
@@ -18,7 +20,6 @@ var addCmd = &cobra.Command{
 		todoTask := []byte(strings.Join(args, " "))
 
 		err := db.AddToDoTask(todoTask)
-
 		if err != nil {
 			fmt.Printf("Error adding new task. Err: %v", err)
 			os.Exit(1)
