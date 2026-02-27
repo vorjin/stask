@@ -10,47 +10,11 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-var (
-	db                  *bolt.DB
-	tasksBucket         = []byte("tasks")
-	completedBucket     = []byte("completed")
-	completedTimeBucket = []byte("completed_time")
-)
-
-type Task struct {
-	ID   uint64
-	Task string
-}
-
-func BoltDBInit(path string) error {
-	var err error
-
-	db, err = bolt.Open(path, 0o600, &bolt.Options{Timeout: 1 * time.Second})
-	if err != nil {
-		return err
-	}
-
-	return db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists(tasksBucket)
-		if err != nil {
-			return err
-		}
-
-		_, err = tx.CreateBucketIfNotExists(completedBucket)
-		if err != nil {
-			return err
-		}
-		_, err = tx.CreateBucketIfNotExists(completedTimeBucket)
-		return err
-	})
-}
-
-func ListToDoTasks() ([]Task, error) {
-	bucketBytes := []byte("tasks")
+func (s *BoltTaskStore) ListToDoTasks() ([]Task, error) {
 	var tasks []Task
 
-	err := db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(bucketBytes)
+	err := s.db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(s.tasksBucket)
 
 		cursor := bucket.Cursor()
 
@@ -72,7 +36,7 @@ func ListToDoTasks() ([]Task, error) {
 	return tasks, err
 }
 
-func ListCompletedTasks(hours int) ([]Task, error) {
+func (s *BoltTaskStore) ListCompletedTasks(hours int) ([]Task, error) {
 	var tasks []Task
 
 	// calculating cutoff point
@@ -80,9 +44,9 @@ func ListCompletedTasks(hours int) ([]Task, error) {
 	cutoff := time.Now().Add(-duration).Format(time.RFC3339)
 	cutoffBytes := []byte(cutoff)
 
-	err := db.View(func(tx *bolt.Tx) error {
-		timeBucket := tx.Bucket([]byte("completed_time"))
-		dataBucket := tx.Bucket([]byte("completed"))
+	err := s.db.View(func(tx *bolt.Tx) error {
+		timeBucket := tx.Bucket(s.completedTimeBucket)
+		dataBucket := tx.Bucket(s.completedBucket)
 
 		timeCursor := timeBucket.Cursor()
 
@@ -109,14 +73,12 @@ func ListCompletedTasks(hours int) ([]Task, error) {
 	return tasks, err
 }
 
-func AddToDoTask(task []byte) error {
-	return AddTask(task, "tasks")
+func (s *BoltTaskStore) AddToDoTask(task []byte) error {
+	return s.AddTask(task, s.tasksBucket)
 }
 
-func AddTask(task []byte, bucketName string) error {
-	bucketBytes := []byte(bucketName)
-
-	return db.Update(func(tx *bolt.Tx) error {
+func (s *BoltTaskStore) AddTask(task []byte, bucketBytes []byte) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(bucketBytes)
 
 		id, err := bucket.NextSequence()
@@ -135,11 +97,11 @@ func AddTask(task []byte, bucketName string) error {
 	})
 }
 
-func TaskByID(id uint64) ([]byte, error) {
+func (s *BoltTaskStore) TaskByID(id uint64) ([]byte, error) {
 	var taskDesc []byte
 
-	err := db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(tasksBucket)
+	err := s.db.View(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(s.tasksBucket)
 
 		idBytes := uToB(id)
 
@@ -153,9 +115,9 @@ func TaskByID(id uint64) ([]byte, error) {
 	return taskDesc, nil
 }
 
-func DeleteTask(id uint64) error {
-	return db.Update(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket(tasksBucket)
+func (s *BoltTaskStore) DeleteTask(id uint64) error {
+	return s.db.Update(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket(s.tasksBucket)
 
 		idBytes := uToB(id)
 
@@ -168,13 +130,13 @@ func DeleteTask(id uint64) error {
 	})
 }
 
-func DeleteTasksBucket() error {
-	return db.Update(func(tx *bolt.Tx) error {
-		return tx.DeleteBucket(tasksBucket)
+func (s *BoltTaskStore) DeleteTasksBucket() error {
+	return s.db.Update(func(tx *bolt.Tx) error {
+		return tx.DeleteBucket(s.tasksBucket)
 	})
 }
 
-func DoTask(args []string) ([]string, error) {
+func (s *BoltTaskStore) DoTask(args []string) ([]string, error) {
 	var tasks []string
 
 	for _, taskID := range args {
@@ -183,24 +145,24 @@ func DoTask(args []string) ([]string, error) {
 			return nil, err
 		}
 
-		taskDesc, err := TaskByID(id)
+		taskDesc, err := s.TaskByID(id)
 		if err != nil {
 			return nil, err
 		}
 
-		err = AddTask(taskDesc, "completed")
+		err = s.AddTask(taskDesc, s.completedBucket)
 		if err != nil {
 			return nil, err
 		}
 
 		timeNow := []byte(time.Now().Format(time.RFC3339))
 
-		err = AddTask(timeNow, "completed_time")
+		err = s.AddTask(timeNow, s.completedTimeBucket)
 		if err != nil {
 			return nil, err
 		}
 
-		err = DeleteTask(id)
+		err = s.DeleteTask(id)
 		if err != nil {
 			return nil, err
 		}
@@ -209,10 +171,6 @@ func DoTask(args []string) ([]string, error) {
 	}
 
 	return tasks, nil
-}
-
-func CloseBoltDB() error {
-	return db.Close()
 }
 
 func bToU(key []byte) uint64 {

@@ -17,16 +17,19 @@ func main() {
 	}
 	dbPath := filepath.Join(path, "task-manager.db")
 
-	err = db.BoltDBInit(dbPath)
+	taskStore, err := db.NewBoltTaskStore(dbPath, "tasks", "completed", "completed_time")
 	if err != nil {
 		fmt.Printf("Error initialising Bolt database. Err: %v", err)
 		os.Exit(1)
 	}
-	cmd.Execute()
 
-	err = db.CloseBoltDB()
-	if err != nil {
-		fmt.Printf("Error closing Bolt database. Err: %v", err)
-		os.Exit(1)
-	}
+	defer func() {
+		err := taskStore.Close()
+		if err != nil {
+			fmt.Printf("Error closing Bolt database. Err: %v", err)
+			os.Exit(1)
+		}
+	}()
+
+	cmd.Execute(taskStore)
 }
