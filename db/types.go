@@ -19,7 +19,7 @@ type TaskStore interface {
 	ListToDoTasks() ([]Task, error)
 	ListCompletedTasks(hours int) ([]Task, error)
 	AddTask(taskName string) error
-	DoTask(args []string) ([]Task, error)
+	DoTask(taskID uint64) (Task, error)
 	Close() error
 }
 
