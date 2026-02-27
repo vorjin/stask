@@ -15,10 +15,9 @@ func (app *App) NewAddCmd() *cobra.Command {
 		Short: "Add a new task to your list",
 		Long:  `Add a new task to your list. The task description can be a single word or a sentence.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			todoTask := []byte(strings.Join(args, " "))
+			taskName := strings.Join(args, " ")
 
-			// Call the database method via your App struct!
-			err := app.DB.AddToDoTask(todoTask)
+			err := app.DB.AddTask(taskName)
 			if err != nil {
 				fmt.Printf("Error adding new task. Err: %v\n", err)
 				os.Exit(1)

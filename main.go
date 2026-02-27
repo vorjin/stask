@@ -23,7 +23,7 @@ func main() {
 	}
 	dbPath := filepath.Join(dbDir, "task-manager.db")
 
-	taskStore, err := db.NewBoltTaskStore(dbPath, "tasks", "completed", "completed_time")
+	taskStore, err := db.NewBoltTaskStore(dbPath, "tasks")
 	if err != nil {
 		fmt.Printf("Error initialising Bolt database. Err: %v", err)
 		os.Exit(1)

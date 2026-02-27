@@ -33,7 +33,7 @@ func (app *App) NewCompletedCmd() *cobra.Command {
 
 			color.Cyan("This are your completed tasks for the last %d hours: \n", hours)
 			for i, task := range tasks {
-				fmt.Printf("%d. %s\n", i+1, task.Task)
+				fmt.Printf("%d. %s\n", i+1, task.Name)
 			}
 		},
 	}

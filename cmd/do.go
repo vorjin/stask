@@ -20,8 +20,8 @@ func (app *App) NewDoCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			for _, taskID := range tasks {
-				color.Green("Task #%s was marked as done!\n", taskID)
+			for _, task := range tasks {
+				color.Green("Task #%s was marked as done!\n", task.Name)
 			}
 		},
 	}

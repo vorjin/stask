@@ -11,8 +11,8 @@ import (
 func (app *App) NewListCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "list",
-		Short: "List all of your incomplete tasks",
-		Long:  `List all of your incomplete tasks currently stored in the database.`,
+		Short: "List all of your todo tasks",
+		Long:  `List all of your todo tasks currently stored in the database.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			tasks, err := app.DB.ListToDoTasks()
 			if err != nil {
@@ -28,7 +28,7 @@ func (app *App) NewListCmd() *cobra.Command {
 			color.Magenta("This are your tasks: \n")
 
 			for _, task := range tasks {
-				fmt.Printf("%d. %s\n", task.ID, task.Task)
+				fmt.Printf("%d. %s\n", task.ID, task.Name)
 			}
 		},
 	}
