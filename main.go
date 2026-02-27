@@ -15,7 +15,13 @@ func main() {
 		fmt.Printf("Error getting user home directory. Err: %v", err)
 		os.Exit(1)
 	}
-	dbPath := filepath.Join(path, "task-manager.db")
+	dbDir := filepath.Join(path, ".stask")
+	err = os.MkdirAll(dbDir, 0o700)
+	if err != nil {
+		fmt.Printf("Error creating .stask directory. Err: %v", err)
+		os.Exit(1)
+	}
+	dbPath := filepath.Join(dbDir, "task-manager.db")
 
 	taskStore, err := db.NewBoltTaskStore(dbPath, "tasks", "completed", "completed_time")
 	if err != nil {
