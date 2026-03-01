@@ -22,7 +22,7 @@ func (s *BoltTaskStore) ListTasks(status model.TaskStatus, hours int) ([]model.T
 		tasksBucket := tx.Bucket(s.tasksBucket)
 		cursor := tasksBucket.Cursor()
 
-		for key, value := cursor.Last(); key != nil; key, value = cursor.Prev() {
+		for key, value := cursor.First(); key != nil; key, value = cursor.Next() {
 			var task model.Task
 			err := json.Unmarshal(value, &task)
 			if err != nil {

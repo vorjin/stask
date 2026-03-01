@@ -47,7 +47,7 @@ func (app *App) NewListCmd() *cobra.Command {
 
 			switch status {
 			case "todo":
-				color.Green("These are your TODO tasks: \n")
+				color.Blue("These are your TODO tasks: \n")
 			default:
 				color.Cyan("These are your %s tasks for the last %d hours: \n", status, hours)
 			}
