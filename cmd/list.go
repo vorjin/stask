@@ -17,12 +17,12 @@ func (app *App) NewListCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			hours, err := cmd.Flags().GetInt("time")
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to read 'time' flag: %w", err)
 			}
 
 			status, err := cmd.Flags().GetString("status")
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to read 'status' flag: %w", err)
 			}
 
 			var tasks []model.Task
@@ -37,7 +37,7 @@ func (app *App) NewListCmd() *cobra.Command {
 			}
 
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to list %s tasks: %w", status, err)
 			}
 
 			if len(tasks) == 0 {

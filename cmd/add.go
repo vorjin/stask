@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/fatih/color"
@@ -14,16 +13,16 @@ func (app *App) NewAddCmd() *cobra.Command {
 		Use:   "add [task description]",
 		Short: "Add a new task to your list",
 		Long:  `Add a new task to your list. The task description can be a single word or a sentence.`,
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			taskName := strings.Join(args, " ")
 
 			err := app.DB.AddTask(taskName)
 			if err != nil {
-				fmt.Printf("Error adding new task. Err: %v\n", err)
-				os.Exit(1)
+				return fmt.Errorf("failed to add task: %w", err)
 			}
 
 			color.Green("Task was added successfully.")
+			return nil
 		},
 	}
 }

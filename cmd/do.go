@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/fatih/color"
@@ -15,22 +14,21 @@ func (app *App) NewDoCmd() *cobra.Command {
 		Short: "Mark a task as complete",
 		Long:  `Mark a task as complete by providing its number from the list.`,
 		Args:  cobra.MinimumNArgs(1),
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			for _, taskID := range args {
 				id, err := strconv.ParseUint(taskID, 10, 64)
 				if err != nil {
-					fmt.Printf("Error parsing args into Task IDs. Err: %v", err)
-					os.Exit(1)
+					return fmt.Errorf("invalid task ID %q: %w", taskID, err)
 				}
 
 				task, err := app.DB.DoTask(id)
 				if err != nil {
-					fmt.Printf("Error marking task(s) as 'Done'. Err: %v", err)
-					os.Exit(1)
+					return fmt.Errorf("failed to complete task %d: %w", id, err)
 				}
 
 				color.Green("Task #%d was marked as done!\n", task.ID)
 			}
+			return nil
 		},
 	}
 }
