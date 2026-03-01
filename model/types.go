@@ -23,6 +23,6 @@ type Task struct {
 type TaskStore interface {
 	ListTasks(status TaskStatus, hours int) ([]Task, error)
 	AddTask(taskName string) error
-	DoTask(taskID uint64) (Task, error)
+	UpdateTask(status TaskStatus, taskID uint64) (Task, error)
 	Close() error
 }

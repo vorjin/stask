@@ -10,13 +10,24 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-func (s *BoltTaskStore) DoTask(taskID uint64) (model.Task, error) {
+func (s *BoltTaskStore) UpdateTask(status model.TaskStatus, taskID uint64) (model.Task, error) {
 	task, err := s.getTaskByID(taskID)
 	if err != nil {
 		return model.Task{}, err
 	}
 
-	task.CompletionTime = time.Now()
+	if !task.CompletionTime.IsZero() || !task.DeletionTime.IsZero() {
+		return model.Task{}, errors.New("task is already completed or deleted")
+	}
+
+	switch status {
+	case model.Completed:
+		task.CompletionTime = time.Now()
+	case model.Deleted:
+		task.DeletionTime = time.Now()
+	default:
+		return model.Task{}, errors.New("invalid task status")
+	}
 
 	err = s.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(s.tasksBucket)

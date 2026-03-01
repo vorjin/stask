@@ -10,11 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func (app *App) NewDoCmd() *cobra.Command {
+func (app *App) NewDelCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "do [task number]",
-		Short: "Mark a task as complete",
-		Long:  `Mark a task as complete by providing its number from the list.`,
+		Use:   "del [task number]",
+		Short: "Delete a task from the list",
+		Long:  `Delete a task from the list by providing its number from the list.`,
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			for _, taskID := range args {
@@ -23,12 +23,12 @@ func (app *App) NewDoCmd() *cobra.Command {
 					return fmt.Errorf("invalid task ID %q: %w", taskID, err)
 				}
 
-				task, err := app.DB.UpdateTask(model.Completed, id)
+				task, err := app.DB.UpdateTask(model.Deleted, id)
 				if err != nil {
-					return fmt.Errorf("failed to complete task %d: %w", id, err)
+					return fmt.Errorf("failed to delete task %d: %w", id, err)
 				}
 
-				color.Green("Task #%d was marked as done!\n", task.ID)
+				color.Red("Task #%d was deleted.\n", task.ID)
 			}
 			return nil
 		},

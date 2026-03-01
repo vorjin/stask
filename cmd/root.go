@@ -26,6 +26,7 @@ func Execute(database model.TaskStore) {
 	rootCmd.AddCommand(app.NewAddCmd())
 	rootCmd.AddCommand(app.NewDoCmd())
 	rootCmd.AddCommand(app.NewListCmd())
+	rootCmd.AddCommand(app.NewDelCmd())
 
 	err := rootCmd.Execute()
 	if err != nil {
