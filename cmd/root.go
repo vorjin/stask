@@ -24,7 +24,6 @@ func Execute(database model.TaskStore) {
 	}
 
 	rootCmd.AddCommand(app.NewAddCmd())
-	rootCmd.AddCommand(app.NewCompletedCmd())
 	rootCmd.AddCommand(app.NewDoCmd())
 	rootCmd.AddCommand(app.NewListCmd())
 
