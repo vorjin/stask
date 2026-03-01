@@ -51,8 +51,8 @@ func (app *App) NewListCmd() *cobra.Command {
 			default:
 				color.Cyan("These are your %s tasks for the last %d hours: \n", status, hours)
 			}
-			for i, task := range tasks {
-				fmt.Printf("%d. %s\n", i+1, task.Name)
+			for _, task := range tasks {
+				fmt.Printf("%d. %s\n", task.ID, task.Name)
 			}
 
 			return nil
