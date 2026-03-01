@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"stask/model"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
@@ -14,7 +16,7 @@ func (app *App) NewListCmd() *cobra.Command {
 		Short: "List all of your todo tasks",
 		Long:  `List all of your todo tasks currently stored in the database.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			tasks, err := app.DB.ListToDoTasks()
+			tasks, err := app.DB.ListTasks(model.Todo, 0)
 			if err != nil {
 				fmt.Printf("Error listing TODO tasks. Err: %v", err)
 				os.Exit(1)

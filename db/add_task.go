@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"stask/model"
+
 	"github.com/boltdb/bolt"
 )
 
@@ -18,7 +20,7 @@ func (s *BoltTaskStore) AddTask(taskName string) error {
 
 		idBytes := uToB(id)
 
-		task := Task{
+		task := model.Task{
 			ID:           id,
 			Name:         taskName,
 			CreationTime: time.Now(),

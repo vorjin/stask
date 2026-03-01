@@ -1,27 +1,8 @@
 package db
 
 import (
-	"time"
-
 	"github.com/boltdb/bolt"
 )
-
-type Task struct {
-	ID             uint64
-	Name           string
-	Description    string
-	CreationTime   time.Time
-	CompletionTime time.Time
-	DeletionTime   time.Time
-}
-
-type TaskStore interface {
-	ListToDoTasks() ([]Task, error)
-	ListCompletedTasks(hours int) ([]Task, error)
-	AddTask(taskName string) error
-	DoTask(taskID uint64) (Task, error)
-	Close() error
-}
 
 type BoltTaskStore struct {
 	db          *bolt.DB

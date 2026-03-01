@@ -4,16 +4,16 @@ package cmd
 import (
 	"os"
 
-	"stask/db"
+	"stask/model"
 
 	"github.com/spf13/cobra"
 )
 
 type App struct {
-	DB db.TaskStore
+	DB model.TaskStore
 }
 
-func Execute(database db.TaskStore) {
+func Execute(database model.TaskStore) {
 	app := &App{DB: database}
 
 	rootCmd := &cobra.Command{

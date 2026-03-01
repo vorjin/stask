@@ -5,13 +5,15 @@ import (
 	"errors"
 	"time"
 
+	"stask/model"
+
 	"github.com/boltdb/bolt"
 )
 
-func (s *BoltTaskStore) DoTask(taskID uint64) (Task, error) {
+func (s *BoltTaskStore) DoTask(taskID uint64) (model.Task, error) {
 	task, err := s.getTaskByID(taskID)
 	if err != nil {
-		return Task{}, err
+		return model.Task{}, err
 	}
 
 	task.CompletionTime = time.Now()
@@ -33,14 +35,14 @@ func (s *BoltTaskStore) DoTask(taskID uint64) (Task, error) {
 		return nil
 	})
 	if err != nil {
-		return Task{}, err
+		return model.Task{}, err
 	}
 
 	return task, nil
 }
 
-func (s *BoltTaskStore) getTaskByID(id uint64) (Task, error) {
-	var task Task
+func (s *BoltTaskStore) getTaskByID(id uint64) (model.Task, error) {
+	var task model.Task
 
 	err := s.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket(s.tasksBucket)
@@ -60,7 +62,7 @@ func (s *BoltTaskStore) getTaskByID(id uint64) (Task, error) {
 		return nil
 	})
 	if err != nil {
-		return Task{}, err
+		return model.Task{}, err
 	}
 
 	return task, nil

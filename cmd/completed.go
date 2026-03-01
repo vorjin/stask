@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"stask/model"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
@@ -20,7 +22,7 @@ func (app *App) NewCompletedCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			tasks, err := app.DB.ListCompletedTasks(hours)
+			tasks, err := app.DB.ListTasks(model.Completed, hours)
 			if err != nil {
 				fmt.Printf("Error getting completed tasks. Err: %v", err)
 				os.Exit(1)
